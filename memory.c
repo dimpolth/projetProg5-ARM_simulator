@@ -56,27 +56,105 @@ void memory_destroy(memory mem) {
 }
 
 int memory_read_byte(memory mem, uint32_t address, uint8_t *value) {
-    char * ad = address;
+    
+    if (address > mem->size)
+	return -1;
+    int8_t * ad;
+    ad = mem->address + address;
     *value = *ad;
     return 0;
 }
 
 int memory_read_half(memory mem, int be, uint32_t address, uint16_t *value) {
-    return -1;
+    
+    if (address+1 > mem->size)
+	return -1;
+    int8_t * ad;
+    int16_t val = 0;
+    int i;
+    ad = mem->address + address;
+
+    if (be == 0) {
+       for (i=0;i<=1;i++) {
+          val = val | *(ad+i) << (i*8);
+       }
+    } else {
+       for (i=1;i>=0;i--) {
+          val = val | *(ad+i) << ((1-i)*8);
+       }
+    }
+    *value = val;
+    return 0;
 }
 
 int memory_read_word(memory mem, int be, uint32_t address, uint32_t *value) {
-    return -1;
+    
+    if (address+3 > mem->size)
+	return -1;
+    int8_t * ad;
+    int32_t val = 0;
+    int i;
+    ad = mem->address + address;
+
+    if (be == 0) {
+       for (i=0;i<=3;i++) {
+          val = val | *(ad+i) << (i*8);
+       }
+    } else {
+       for (i=3;i>=0;i--) {
+          val = val | *(ad+i) << ((3-i)*8);
+       }
+    }
+    *value = val;
+    return 0;
 }
 
 int memory_write_byte(memory mem, uint32_t address, uint8_t value) {
-    return -1;
+    
+    if (address > mem->size)
+	return -1;
+    int8_t * ad;
+    ad = mem->address + address;
+    *ad = value;
+    return 0;
 }
 
 int memory_write_half(memory mem, int be, uint32_t address, uint16_t value) {
-    return -1;
+    
+    if (address+1 > mem->size)
+	return -1;
+    int8_t * ad;
+    int i;
+    ad = mem->address + address;
+
+    if (be == 0) {
+       for (i=0;i<=1;i++) {
+          *(ad+i) = (value & 255 << (i*8)) >> (i*8);
+       }
+    } else {
+       for (i=1;i>=0;i--) {
+          *(ad+i) = (value & 255 << ((1-i)*8)) >> ((1-i)*8);
+       }
+    }
+    return 0;
 }
 
 int memory_write_word(memory mem, int be, uint32_t address, uint32_t value) {
-    return -1;
+    
+    if (address+3 > mem->size)
+	return -1;
+    int8_t * ad;
+    int i;
+    ad = mem->address + address;
+
+    if (be == 0) {
+       for (i=0;i<=3;i++) {
+          *(ad+i) = (value & 255 << (i*8)) >> (i*8);
+       }
+    } else {
+       for (i=3;i>=0;i--) {
+          *(ad+i) = (value & 255 << ((3-i)*8)) >> ((3-i)*8);
+       }
+    }
+    return 0;
 }
