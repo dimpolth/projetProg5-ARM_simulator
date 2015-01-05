@@ -29,6 +29,50 @@ Contact: Guillaume.Huard@imag.fr
 #include "util.h"
 
 static int arm_execute_instruction(arm_core p) {
+
+    // Récupération de l'instruction
+    uint32_t PC = arm_read_register(p, 15);
+    uint32_t instr;
+    if (arm_read_word(p, PC, &instr) == -1) return -1;
+
+    // Récupération des registre d'état
+    int n, z, c, v;
+    uint32_t cpsr = arm_read_cpsr(p) >> 28;
+    n = (cpsr & 8) >> 3;
+    z = (cpsr & 4) >> 2;
+    c = (cpsr & 2) >> 1;
+    v = (cpsr & 1);
+
+    // vérification de la condition
+    uint8_t cond = instr >> 28;
+    int res = 1;
+    switch (cond) {
+	case 0 : res = (z == 1); break;
+	case 1 : res = (z == 0); break;
+	case 2 : res = (c == 1); break;
+	case 3 : res = (c == 0); break;
+	case 4 : res = (n == 1); break;
+	case 5 : res = (n == 0); break;
+	case 6 : res = (v == 1); break;
+	case 7 : res = (v == 0); break;
+	case 8 : res = (c == 1 && z == 0); break;
+	case 9 : res = (c == 0 && z == 1); break;
+	case 10 : res = (n == v); break;
+	case 11 : res = (n != v); break;
+	case 12 : res = (z == 0 && n == v); break;
+	case 13 : res = (z == 1 || n != v); break;
+	case 14 : break;
+	default : return -1;
+    }
+    
+    // Execution (ou pas) de l'instruction
+    if (res) {
+	
+    }
+
+    // Incrémentation PC
+    arm_write_register(p, 15, PC+1);
+
     return 0;
 }
 
