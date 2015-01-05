@@ -67,7 +67,13 @@ static int arm_execute_instruction(arm_core p) {
     
     // Execution (ou pas) de l'instruction
     if (res) {
-	
+	int type_instr = (instr && (7 << 25)) >> 25;
+	int deroul = 0;
+        switch (type_instr) {
+	   case 5 : deroul = arm_branch(p, instr);
+	   default : return -1;
+	} 
+	if (deroul == -1) return -1;
     }
 
     // Incrémentation PC
