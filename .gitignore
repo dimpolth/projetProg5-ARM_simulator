@@ -1,3 +1,10 @@
 /*.o
 /Examples/*.o
 *~
+/Examples/example1
+/Examples/example2
+/Examples/example3
+/Examples/example4
+arm_simulator
+send_irq
+memory_test
