@@ -28,19 +28,42 @@ Contact: Guillaume.Huard@imag.fr
 
 
 int arm_branch(arm_core p, uint32_t ins) {
-    return UNDEFINED_INSTRUCTION;
+	
+	// B / BL
+		// Récupération du PC actuel
+	uint32_t PC = arm_read_register(p, 15);
+		// Enregistrement du PC si le brachement est linké
+	if (get_bit(ins, 24) == 1) {
+		arm_write_register(p, 14, PC);
+	}
+		// Traitement de l'offset (de 24 à 32 bit)
+	int32_t offset = asr(ins << 8, 8)
+		// Modification du PC
+	PC =+ offset;
+	arm_write_register(p, 15, PC);
+
+	return 0;
 }
 
 int arm_coprocessor_others_swi(arm_core p, uint32_t ins) {
-    if (get_bit(ins, 24)) {
-        /* Here we implement the end of the simulation as swi 0x123456 */
-        if ((ins & 0xFFFFFF) == 0x123456)
-            exit(0);
-        return SOFTWARE_INTERRUPT;
-    } 
-    return UNDEFINED_INSTRUCTION;
+
+	// SWI
+	if (get_bit(ins, 24)) {
+		if ((ins & 0xFFFFFF) == 0x123456)
+			exit(0);
+		return SOFTWARE_INTERRUPT;
+	} 
+	
+	return UNDEFINED_INSTRUCTION;
 }
 
 int arm_miscellaneous(arm_core p, uint32_t ins) {
-    return UNDEFINED_INSTRUCTION;
+
+	// MRS
+	if (get_bits(ins,27,23) == 2 && get_bits(ins,21,20) == 0) { 
+		arm_write_register(p,get_bits(ins,15,12),arm_read_cpsr(p));
+		return 0;
+	}
+
+	return UNDEFINED_INSTRUCTION;
 }
