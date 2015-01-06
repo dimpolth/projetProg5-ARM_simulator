@@ -46,6 +46,7 @@ static int arm_execute_instruction(arm_core p) {
 	// vérification de la condition
 	uint8_t cond = instr >> 28;
 	int res = 1;
+	int case15 = 0;
 	switch (cond) {
 		case 0 : res = (z == 1); break;
 		case 1 : res = (z == 0); break;
@@ -62,6 +63,7 @@ static int arm_execute_instruction(arm_core p) {
 		case 12 : res = (z == 0 && n == v); break;
 		case 13 : res = (z == 1 || n != v); break;
 		case 14 : break;
+		case 15 : break;
 		default : return -1;
 	}
     
@@ -90,8 +92,9 @@ static int arm_execute_instruction(arm_core p) {
 			case 6 : deroul = arm_coprocessor_load_store(p, instr); break;
 			case 7 : deroul = arm_coprocessor_others_swi(p, instr); break;
 			default : return -1; //Cas normalement impossible à atteindre
-		} 
-		if (deroul == -1) return -1;
+		}
+		
+	if (deroul == -1) return -1;
 	}
 
     // Incrémentation PC
