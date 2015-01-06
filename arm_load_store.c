@@ -24,11 +24,149 @@ Contact: Guillaume.Huard@imag.fr
 #include "arm_exception.h"
 #include "arm_constants.h"
 #include "util.h"
+#include "memory.h"
 #include "debug.h"
 
 int arm_load_store(arm_core p, uint32_t ins) {
-    return UNDEFINED_INSTRUCTION;
+	uint32_t address = 0;
+	uint32_t index = 0;
+	uint32_t rm = arm_read_register(p, get_bits(ins, 3, 0));
+	uint32_t rn = arm_read_register(p, get_bits(ins, 19, 16));
+	uint32_t rd = arm_read_register(p, get_bits(ins, 15, 12));
+	uint8_t cond = get_bits(ins, 31, 28);
+	uint8_t shift = get_bits(ins, 6, 5);
+	uint8_t shift_imm = get_bits(ins, 11, 7);
+	uint8_t I = get_bit(ins, 25);
+	uint8_t P = get_bit(ins, 24);
+	uint8_t U = get_bit(ins, 23);
+	uint8_t B = get_bit(ins, 22);
+	uint8_t W = get_bit(ins, 21);
+	uint8_t L = get_bit(ins, 20);
+	uint16_t offset = get_bits(ins, 11, 0);
+	
+	if (!I && P && !W){ // immediate offset
+		if (U)
+			address = rn + offset;
+		else
+			address = rn - offset;
+	}
+
+	if (I && P && !W){ 
+		if(!get_bits(ins, 11, 4)){ // register offset
+			if (U)
+				address = rn + rm;
+			else
+				address = rn - rm;	
+		}
+		else {
+		index = scaled_switch(p, rm, shift, shift_imm); // scaled register offset
+		if (U)
+			address = rn + index;
+		else
+			address = rn - index;
+		}
+	}
+
+	if(!I && P && W){ // immediate pre_indexed
+		if (U)
+			address = rn + offset;
+		else
+			address = rn - offset;
+		if (cond) arm_write_register(p, rn, address);
+	}
+	
+	if(I && P && W){
+		if(!get_bits(ins, 11, 4)){ // register pre-indexed
+			if (U)
+				address = rn + index;
+			else
+				address = rn - index;
+		}
+		else { // scaled register pre-indexed
+		index = scaled_switch(p, rm, shift, shift_imm); 
+		if (U)
+			address = rn + index;
+		else
+			address = rn - index;
+		}
+		if (cond) arm_write_register(p, rn, address);
+	}
+
+	if(!I && !P && !W){ // immediate post-indexed
+		address = rn;
+		if (cond) arm_write_register(p, rn, rn+offset);
+		else arm_write_register(p, rn, rn-offset);
+	}
+
+	if(I && !P && !W){
+		if(!get_bits(ins, 11, 4)){ // register post-indexed
+			address = rn;
+			if (cond) arm_write_register(p, rn, rn+rm);
+			else arm_write_register(p, rn, rn-rm);
+		}
+		else { // scaled register post-indexed
+			address = rn;
+			index = scaled_switch(p, rm, shift, shift_imm);
+			if (cond) arm_write_register(p, rn, rn+index);
+			else arm_write_register(p, rn, rn-index);
+		}
+	}
+
+	if(!address) return UNDEFINED_INSTRUCTION;
+	int erreur;
+	if(L){ // Load
+		if (B){ // LDRB
+			uint8_t res;
+			erreur = arm_read_byte(p, address, &res);
+			erreur = arm_write_register(p, rd, res);
+		}
+		else { // LDR
+			uint32_t res;
+			erreur = arm_read_word(p, address, &res);
+			erreur = arm_write_register(p, rd, res);
+		}
+	}
+	else { // Store
+		if (B){ // STRB
+			uint8_t res;
+			res = arm_read_register(p, rd);
+			erreur = arm_write_byte(p, address, res);
+		}
+		else { // STR
+			uint32_t res;
+			res = arm_read_register(p, rd);
+			erreur = arm_write_word(p, address, res);
+		}
+	}
+	return erreur;
 }
+
+uint32_t scaled_switch(arm_core p, uint32_t rm, uint8_t shift, uint8_t shift_imm){ 
+	// Switch utilisé à plusieurs reprises que nous avons donc mis dans une sous-fonction
+	uint32_t index = 0;
+	switch (shift){
+		case 0: index = rm << shift_imm;
+				break;
+		case 1: if(shift_imm == 0)
+					index = 0;
+				else index = rm >> shift_imm;
+				break;
+		case 2: if(shift_imm == 0){
+					if(get_bit(rm, 31))
+						index = 0xFFFFFFFF;
+					else index = 0;
+				}
+				else index = asr(rm, shift_imm);
+				break;
+		case 3: if(shift_imm == 0){
+					uint32_t cpsr = arm_read_cpsr(p);
+					uint8_t c = get_bit(cpsr, C);
+					index = (c << 31) | (rm >> 1);
+				} else index = ror(rm, shift_imm);
+				break;
+	}
+	return index;
+} 
 
 int arm_load_store_multiple(arm_core p, uint32_t ins) {
     return UNDEFINED_INSTRUCTION;
