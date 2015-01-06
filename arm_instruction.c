@@ -70,14 +70,21 @@ static int arm_execute_instruction(arm_core p) {
 	int type_instr = (instr && (7 << 25)) >> 25;
 	int deroul = 0;
         switch (type_instr) {
-	   case 5 : deroul = arm_branch(p, instr);
+   	   case 0 : deroul = arm_data_processing_shift(p, instr); break;
+	   case 1 : deroul = arm_data_processing_immediate_msr(p, instr); break;
+           case 2 : deroul = arm_load_store(p, instr); break;
+           case 3 : break;
+           case 4 : deroul = arm_load_store_multiple(p, instr); break;
+	   case 5 : deroul = arm_branch(p, instr); break;
+           case 6 : deroul = arm_coprocessor_load_store(p, instr); break;
+           case 7 : deroul = arm_coprocessor_others_swi(p, instr); break;
 	   default : return -1;
 	} 
 	if (deroul == -1) return -1;
     }
 
     // Incrémentation PC
-    arm_write_register(p, 15, PC+1);
+    arm_write_register(p, 15, PC+4);
 
     return 0;
 }
