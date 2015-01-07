@@ -79,12 +79,12 @@ static int arm_execute_instruction(arm_core p) {
 				}
 				else {
 					if(get_bit(instr, 4) == 0 || (get_bit(instr, 7) == 0 && get_bit(instr, 4) == 1))
-						deroul = arm_data_processing_shift(p, instr);
+						deroul = arm_data_processing(p, instr);
 					else
 						return -1; //Cas normalement impossible à atteindre
 				}
 				break;		
-			case 1 : deroul = arm_data_processing_immediate_msr(p, instr); break;
+			case 1 : deroul = arm_data_processing(p, instr); break;
 			case 2 : deroul = arm_load_store(p, instr); break;
 			case 3 : deroul = arm_load_store(p, instr); break;
 			case 4 : deroul = arm_load_store_multiple(p, instr); break;
