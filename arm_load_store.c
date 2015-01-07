@@ -169,7 +169,91 @@ uint32_t scaled_switch(arm_core p, uint32_t rm, uint8_t shift, uint8_t shift_imm
 } 
 
 int arm_load_store_multiple(arm_core p, uint32_t ins) {
-    return UNDEFINED_INSTRUCTION;
+	uint32_t start_address = 0;
+	uint32_t end_address = 0;
+	uint32_t register_list = arm_read_register(p, get_bits(ins, 15, 0));
+	uint32_t rn = arm_read_register(p, get_bits(ins, 19, 16));
+	uint8_t cond = get_bits(ins, 31, 28);
+	uint8_t P = get_bit(ins, 24);
+	uint8_t U = get_bit(ins, 23);
+	uint8_t W = get_bit(ins, 21);
+	uint8_t L = get_bit(ins, 20);
+
+	if(!P && U){ // increment after
+		start_address = rn;
+		end_address = rn + (number_of_set_bits_in(register_list)*4)-4;
+		if(cond && W==1)
+			rn = rn + (number_of_set_bits_in(register_list)*4);
+	}
+
+	if(P && U){ // increment before
+		start_address = rn + 4;
+		end_address = rn + (number_of_set_bits_in(register_list)*4);
+		if(cond && W==1)
+			rn = rn + (number_of_set_bits_in(register_list)*4);
+	}
+
+	if(!P && !U){ // decrement after
+		end_address = rn;
+		start_address = rn - (number_of_set_bits_in(register_list)*4)+4;
+		if(cond && W==1)
+			rn = rn - (number_of_set_bits_in(register_list)*4);
+	}
+
+	if(P && !U){ // decrement before
+		end_address = rn - 4;
+		start_address = rn - (number_of_set_bits_in(register_list)*4);
+		if(cond && W==1)
+			rn = rn - (number_of_set_bits_in(register_list)*4);
+	}
+	
+	if(!start_address || !end_address) return UNDEFINED_INSTRUCTION;
+
+	arm_write_register(p, get_bits(ins, 19, 16), rn);
+
+	uint32_t res;
+	uint32_t address;
+	int erreur = 0;
+	int i = 0;
+	if(L){ // LDM(1)
+		for(address = start_address; address <= end_address; address+=4){
+			erreur = arm_read_word(p, address, &res);
+			erreur = arm_write_register(p, get_next_register(register_list, i), res);
+			i++;
+		}
+	}
+	else { // STM(1)
+		for(address = start_address; address <= end_address; address+=4){
+			res = arm_read_register(p, get_next_register(register_list, i));
+			erreur = arm_write_word(p, address, res);
+			i++;
+		}
+	}
+	
+    return erreur;
+}
+
+int number_of_set_bits_in(uint16_t register_list){
+	int i;
+	int res = 0;
+	for(i=0; i<16; i++){
+		if(get_bit(register_list, i))
+			res++;
+	}
+	return res;
+}
+
+int get_next_register(uint16_t register_list, int num){
+	int i;
+	int cpt = 0;
+	for(i=0; i<16; i++){
+		if(get_bit(register_list, i)){
+			if(cpt==num)
+				return i;
+			cpt++;
+		}
+	}
+	return -1;
 }
 
 int arm_coprocessor_load_store(arm_core p, uint32_t ins) {
