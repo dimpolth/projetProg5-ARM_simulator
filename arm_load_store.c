@@ -45,6 +45,7 @@ int arm_load_store(arm_core p, uint32_t ins) {
 	uint16_t offset = get_bits(ins, 11, 0);
 	
 	if (!I && P && !W){ // immediate offset
+		printf("1\n");
 		if (U)
 			address = rn + offset;
 		else
@@ -52,6 +53,7 @@ int arm_load_store(arm_core p, uint32_t ins) {
 	}
 
 	if (I && P && !W){ 
+		printf("2\n");
 		if(!get_bits(ins, 11, 4)){ // register offset
 			if (U)
 				address = rn + rm;
@@ -68,6 +70,7 @@ int arm_load_store(arm_core p, uint32_t ins) {
 	}
 
 	if(!I && P && W){ // immediate pre_indexed
+		printf("3\n");
 		if (U)
 			address = rn + offset;
 		else
@@ -76,6 +79,7 @@ int arm_load_store(arm_core p, uint32_t ins) {
 	}
 	
 	if(I && P && W){
+		printf("4\n");
 		if(!get_bits(ins, 11, 4)){ // register pre-indexed
 			if (U)
 				address = rn + index;
@@ -93,12 +97,14 @@ int arm_load_store(arm_core p, uint32_t ins) {
 	}
 
 	if(!I && !P && !W){ // immediate post-indexed
+		printf("5\n");
 		address = rn;
 		if (cond) arm_write_register(p, rn, rn+offset);
 		else arm_write_register(p, rn, rn-offset);
 	}
 
 	if(I && !P && !W){
+		printf("6\n");
 		if(!get_bits(ins, 11, 4)){ // register post-indexed
 			address = rn;
 			if (cond) arm_write_register(p, rn, rn+rm);

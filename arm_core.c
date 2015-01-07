@@ -151,7 +151,7 @@ int arm_fetch(arm_core p, uint32_t *value) {
     int result;
     uint32_t address;
 
-    p->cycle_count++;
+    p->cycle_count++; 
     address = arm_read_register(p, 15) - 4;
     result = memory_read_word(p->mem, get_bit(p->cpsr, 9), address, value);
     trace_memory(p->cycle_count, READ, 4, OPCODE_FETCH, address, *value);

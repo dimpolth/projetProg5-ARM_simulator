@@ -30,13 +30,10 @@ Contact: Guillaume.Huard@imag.fr
 
 static int arm_execute_instruction(arm_core p) {
 
-	// Récupération de l'instruction
-	uint32_t PC = arm_read_register(p, 15);
+	// Récupération de l'instruction et incrémentation PC
 	uint32_t instr;
-	if (arm_read_word(p, PC, &instr) == -1) return -1;
+	if (arm_fetch(p, &instr) == -1) return -1;
 
-	// Incrémentation PC
-	arm_write_register(p, 15, PC+4);
 
 	// Récupération des registre d'état
 	int n, z, c, v;
@@ -68,11 +65,12 @@ static int arm_execute_instruction(arm_core p) {
 		case 15 : break;
 		default : return -1;
 	}
-    
+	printf("Instr : %x\n",instr);
+    printf("Cond : %d\n",cond);
   	// Execution (ou pas) de l'instruction
+	int deroul = 0;
 	if (res) {
 		int type_instr = get_bits(instr,27,25);
-		int deroul = 0;
 		switch (type_instr) {
 			case 0 :
 				if(get_bits(instr, 25, 24) == 2 && get_bit(instr, 20) == 0) {
@@ -95,11 +93,9 @@ static int arm_execute_instruction(arm_core p) {
 			case 7 : deroul = arm_coprocessor_others_swi(p, instr); break;
 			default : return -1; //Cas normalement impossible à atteindre
 		}
-		
-	if (deroul == -1) return -1;
+		printf("type instr = %d\n",type_instr);
 	}
-
-	return 0;
+	return deroul;
 }
 
 int arm_step(arm_core p) {
