@@ -29,112 +29,209 @@ Contact: Guillaume.Huard@imag.fr
 
 /* Decoding functions for different classes of instructions */
 int arm_data_processing_shift(arm_core p, uint32_t ins) {
-	uint8_t opcode, s, numRn, numRd, shiftOp, numRm, shiftDirection;
-	uint32_t rn, res, rm, shiftValue, valShifted;
-	uint32_t cpsr = arm_read_cpsr(p) >> 28;
-	int n, z, v, c, carryOut;
-	n = (cpsr & 8) >> 3;
-	z = (cpsr & 4) >> 2;
-	c = (cpsr & 2) >> 1;
-	v = (cpsr & 1);
-	opcode = get_bits(ins, 24, 21);
+	uint8_t opcode, numRn, numRd, typeOperand, numRm, shiftDirection, shiftType;
+	uint32_t rn, res, rm, shift_imm, shifter_operand;
+	uint32_t cpsr = arm_read_cpsr(p);
+	int n, z, v, c, shifter_carry_out, s;
+	n = get_bit(cpsr, N);
+	z = get_bit(cpsr, Z);
+	c = get_bit(cpsr, C);
+	v = get_bit(cpsr, V);
 	s = get_bit(ins, 20);
+	opcode = get_bits(ins, 24, 21);
 	numRn = get_bits(ins, 19, 16);
 	numRd = get_bits(ins, 15, 12);
 	numRm = get_bits(ins, 3, 0);
 	rn = arm_read_register(p, numRn);
 	rm = arm_read_register(p, numRm);
-	shiftOp = get_bit(ins, 4); //0 si opérande immadiate, 1 si c'est un registre
-	if(shiftOp == 0) {
-		shiftValue = get_bits(ins, 11, 7);
-		if(shiftValue == 0) {
-			valShifted = rm;
-			carryOut = c;
-		}
-		else {
-			shiftDirection = get_bit(ins, 5)
-			if(shiftDirection == LSL) {
-				shiftedValue = rm << shiftValue;
-				carryOut = get_bit(rm, 32 - shiftValue);
+	typeOperand = get_bit(ins, 4);
+	if(typeOperand == 0) { //Opérende immédiate
+		shift_imm = get_bits(ins, 11, 7);
+		shiftDirection = get_bit(ins, 5);
+		if(shiftDirection == LSL) {	//Décalage gauche
+			if(shift_imm == 0) {
+				shifter_operand = rm;
+				shifter_carry_out = c;
 			}
 			else {
-				shiftedValue = rm >> shiftValue;
-				carryOut = get_bit(rm, shiftValue - 1);
-				//TODO
+				shifter_operand = rm << shift_imm;
+				shifter_carry_out = get_bit(rm, 32-shift_imm);
+			}
+		}
+		else { //Décalage droit
+			shiftType = get_bit(ins, 6);
+			if(shiftType == 0) { //Décalage logique
+				if(shift_imm == 0) {
+					shifter_operand = 0;
+					shifter_carry_out = get_bit(rm, 31);
+				}
+				else {
+					shifter_operand = rm >> shift_imm;
+					shifter_carry_out = get_bit(rm,shift_imm - 1);
+				}
+			}
+			else { //Décalage arithmétique
+				if(shift_imm == 0) {
+					if(get_bit(rm, 31) == 0) {
+						shifter_operand = 0;
+						shifter_carry_out = get_bit(rm, 31);
+					}
+					else {
+						shifter_operand = 0xFFFFFFFF;
+						shifter_carry_out = get_bit(rm, 31);
+					}
+				}
+				else {
+					shifter_operand = rm >> shift_imm;
+					shifter_carry_out = get_bit(rm,shift_imm - 1);
+				}
 			}
 		}
 	}
-	else {
+	else { //Opérende registre
 		uint8_t numRs = get_bits(ins, 11, 8);
-		shiftValue = get_bits(arm_read_register(p, numRs), 7, 0);
-			if(shiftValue == 0) {
-				valShifted = rm;
-				carryOut = c;
+		shift_imm = get_bits(arm_read_register(p, numRs), 7, 0);
+		shiftDirection = get_bit(ins, 5);
+		if(shiftDirection == LSL) {	//Décalage gauche
+			if(shift_imm == 0) {
+				shifter_operand = rm;
+				shifter_carry_out = c;
+			}
+			else if(shift_imm < 32){
+				shifter_operand = rm << shift_imm;
+				shifter_carry_out = get_bit(rm, 32-shift_imm);
+			}
+			else if(shift_imm == 32) {
+				shifter_operand = 0;
+				shifter_carry_out = get_bit(rm, 0);
 			}
 			else {
-				//TODO
+				shifter_operand = 0;
+				shifter_carry_out = 0;
 			}
+		}
+		else { //Décalage droit
+			shiftType = get_bit(ins, 6);
+			if(shiftType == 0) { //Décalage logique
+				if(shift_imm == 0) {
+					shifter_operand = rm;
+					shifter_carry_out = c;
+				}
+				else if(shift_imm < 32){
+					shifter_operand = rm >> shift_imm;
+					shifter_carry_out = get_bit(rm, shift_imm-1);
+				}
+				else if(shift_imm == 32) {
+					shifter_operand = 0;
+					shifter_carry_out = get_bit(rm, 31);
+				}
+				else {
+					shifter_operand = 0;
+					shifter_carry_out = 0;
+				}
+			}
+			else { //Décalage arithmétique
+				if(shift_imm == 0) {
+					shifter_operand = rm;
+					shifter_carry_out = c;
+				}
+				else if(shift_imm < 32){
+					shifter_operand = rm >> shift_imm;
+					shifter_carry_out = get_bit(rm, shift_imm-1);
+				}
+				else {
+					if(get_bit(rm, 31) == 0) {
+						shifter_operand = 0;
+						shifter_carry_out = get_bit(rm, 31);
+					}
+					else {
+						shifter_operand = 0xFFFFFFFF;
+						shifter_carry_out = get_bit(rm, 31);
+					}
+				}
+			}
+		}
 	}
 	
 	switch (opcode) {
 		case 0:	//AND
-			res = rn & valShifted;
+			res = rn & shifter_operand;
+			if(s == 1 && numRd == 15) {
+				//interruption
+			}
+			else if(s == 1) {
+				n = get_bit(res, 31);
+				if(res == 0)
+					z = 1;
+				else
+					z = 0;
+				c = shifter_carry_out;
+			}
 			break;
 		case 1:	//EOR
-			res = rn ^ valShifted;
+			res = rn ^ shifter_operand;
 			break;
 		case 2:	//SUB
-			res = rn - valShifted;
+			res = rn - shifter_operand;
 			break;
 		case 3:	//RSB
-			res = valShifted - rn;
+			res = shifter_operand - rn;
 			break;
 		case 4:	//ADD
-			res = rn + valShifted;
+			res = rn + shifter_operand;
 			break;
 		case 5:	//ADC
-			res = rn + valShifted + c;
-			n = get_bit(res, 31);
-			if(res == 0)
-				z = 1;
-			else
-				z = 0;
-			c = 
-			v = 
+			res = rn + shifter_operand + c;
 			break;
 		case 6:	//SBC
-			res = rn - valShifted - ~c;
+			res = rn - shifter_operand - ~c;
 			break;
 		case 7:	//RSC
-			res = valShifted - rn - ~c;
+			res = shifter_operand - rn - ~c;
 			break;
 		case 8:	//TST
-			res = rn & valShifted;
+			res = rn & shifter_operand;
 			break;
 		case 9:	//TEQ
-			res = rn ^ valShifted;
+			res = rn ^ shifter_operand;
 			break;
 		case 10:	//CMP
-			res = rn - valShifted;
+			res = rn - shifter_operand;
 			break;
 		case 11:	//CMN
-			res = rn + valShifted;
+			res = rn + shifter_operand;
 			break;
 		case 12:	//ORR
-			res = rn | valShifted;
+			res = rn | shifter_operand;
 			break;
 		case 13:	//MOV
-			res = valShifted;
+			res = shifter_operand;
 			break;
 		case 14:	//BIC
-			res = rn & ~valShifted;
+			res = rn & ~shifter_operand;
 			break;
 		case 15:	//MVN
-			res = ~valShifted;
+			res = ~shifter_operand;
 			break;
 	}
 	if(opcode < 8 || opcode > 11)
 		arm_write_register(p, numRd, res);
+	if(n == 0)
+		cpsr = clr_bit(cpsr, N);
+	else
+		cpsr = set_bit(cpsr, N);
+	if(z == 0)
+		cpsr = clr_bit(cpsr, Z);
+	else
+		cpsr = set_bit(cpsr, Z);
+	if(v == 0)
+		cpsr = clr_bit(cpsr, V);
+	else
+		cpsr = set_bit(cpsr, V);
+	if(c == 0)
+		cpsr = clr_bit(cpsr, C);
+	else
+		cpsr = set_bit(cpsr, C);
 	return UNDEFINED_INSTRUCTION;
 }
 
