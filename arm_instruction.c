@@ -35,16 +35,19 @@ static int arm_execute_instruction(arm_core p) {
 	uint32_t instr;
 	if (arm_read_word(p, PC, &instr) == -1) return -1;
 
+	// Incrémentation PC
+	arm_write_register(p, 15, PC+4);
+
 	// Récupération des registre d'état
 	int n, z, c, v;
-	uint32_t cpsr = arm_read_cpsr(p) >> 28;
-	n = (cpsr & 8) >> 3;
-	z = (cpsr & 4) >> 2;
-	c = (cpsr & 2) >> 1;
-	v = (cpsr & 1);
+	uint32_t cpsr = arm_read_cpsr(p);
+	n = get_bit(cpsr,N);
+	z = get_bit(cpsr,Z);
+	c = get_bit(cpsr,C);
+	v = get_bit(cpsr,V);
 
 	// vérification de la condition
-	uint8_t cond = instr >> 28;
+	uint8_t cond = get_bits(instr,31,28);
 	int res = 1;
 	int case15 = 0;
 	switch (cond) {
@@ -67,9 +70,9 @@ static int arm_execute_instruction(arm_core p) {
 		default : return -1;
 	}
     
-  // Execution (ou pas) de l'instruction
+  	// Execution (ou pas) de l'instruction
 	if (res) {
-		int type_instr = (instr && (7 << 25)) >> 25;
+		int type_instr = get_bits(instr,27,25);
 		int deroul = 0;
 		switch (type_instr) {
 			case 0 :
@@ -97,10 +100,7 @@ static int arm_execute_instruction(arm_core p) {
 	if (deroul == -1) return -1;
 	}
 
-    // Incrémentation PC
-    arm_write_register(p, 15, PC+4);
-
-    return 0;
+	return 0;
 }
 
 int arm_step(arm_core p) {
