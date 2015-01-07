@@ -49,7 +49,6 @@ static int arm_execute_instruction(arm_core p) {
 	// vérification de la condition
 	uint8_t cond = get_bits(instr,31,28);
 	int res = 1;
-	int case15 = 0;
 	switch (cond) {
 		case 0 : res = (z == 1); break;
 		case 1 : res = (z == 0); break;
