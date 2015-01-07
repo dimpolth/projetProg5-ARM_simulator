@@ -170,15 +170,48 @@ int arm_data_processing_shift(arm_core p, uint32_t ins) {
 			break;
 		case 1:	//EOR
 			res = rn ^ shifter_operand;
+			if(s == 1 && numRd == 15) {
+				//interruption
+			}
+			else if(s == 1) {
+				n = get_bit(res, 31);
+				if(res == 0)
+					z = 1;
+				else
+					z = 0;
+				c = shifter_carry_out;
+			}
 			break;
 		case 2:	//SUB
 			res = rn - shifter_operand;
+			if(s == 1 && numRd == 15) {
+				//interruption
+			}
+			else if(s == 1) {
+				n = get_bit(res, 31);
+				if(res == 0)
+					z = 1;
+				else
+					z = 0;
+				c = shifter_carry_out;
+			}
 			break;
 		case 3:	//RSB
 			res = shifter_operand - rn;
 			break;
 		case 4:	//ADD
 			res = rn + shifter_operand;
+			if(s == 1 && numRd == 15) {
+				//interruption
+			}
+			else if(s == 1) {
+				n = get_bit(res, 31);
+				if(res == 0)
+					z = 1;
+				else
+					z = 0;
+				c = shifter_carry_out;
+			}
 			break;
 		case 5:	//ADC
 			res = rn + shifter_operand + c;
@@ -232,6 +265,7 @@ int arm_data_processing_shift(arm_core p, uint32_t ins) {
 		cpsr = clr_bit(cpsr, C);
 	else
 		cpsr = set_bit(cpsr, C);
+	arm_write_cpsr(p, cpsr);
 	return UNDEFINED_INSTRUCTION;
 }
 
