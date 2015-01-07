@@ -37,7 +37,7 @@ int arm_branch(arm_core p, uint32_t ins) {
 		arm_write_register(p, 14, PC);
 	}
 		// Traitement de l'offset (de 24 à 32 bit)
-	int32_t offset = asr(ins << 8, 8)
+	int32_t offset = asr(ins << 8, 8);
 		// Modification du PC
 	PC =+ offset;
 	arm_write_register(p, 15, PC);
