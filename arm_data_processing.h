@@ -26,5 +26,6 @@ Contact: Guillaume.Huard@imag.fr
 #include "arm_core.h"
 
 int arm_data_processing(arm_core p, uint32_t ins);
+int32_t ror(int32_t shift_imm, int32_t rm);
 
 #endif

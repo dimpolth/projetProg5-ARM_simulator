@@ -152,10 +152,24 @@ int arm_data_processing(arm_core p, uint32_t ins) {
 				shifter_carry_out = get_bit(rm, 0);
 			}
 			else { //Immediat ROR
-			
+				shifter_operand = ror(shift_imm, rm);
+				shifter_carry_out = get_bit(shifter_operand, shift_imm-1);
 			}
 			break;
 		case 7 : //Register ROR
+			if(shift_imm == 0) {
+				shifter_operand = rm;
+				chifter_carry_out = c;
+			}
+			else if(get_bits(shift_imm, 4, 0) == 0) {
+				shifter_operand = rm;
+				shifter_carry_out = get_bit(rm, 31);
+			}
+			else {
+				shift_imm = get_bits(shift_imm, 4, 0);
+				shifter_operand = ror(shift_imm, rm);
+				shifter_carry_out = get_bit(shifter_operand, shift_imm -1);
+			}
 			break;
 	}
 	
@@ -420,4 +434,18 @@ int arm_data_processing(arm_core p, uint32_t ins) {
 		cpsr = set_bit(cpsr, C);
 	arm_write_cpsr(p, cpsr);
 	return UNDEFINED_INSTRUCTION;
+}
+
+int32_t ror (int32_t shift_imm, int32_t rm) {
+	int32_t res = rm;
+	int i, tmp;
+	for(i = 0; i < shift_imm; i++) {
+		tmp = get_bit(rm, 0);
+		res = res >> 1;
+		if(tmp == 0)
+			res = clr_bit(res, 31);
+		else
+			res = set_bit(res, 31);
+	}
+	return res;
 }
