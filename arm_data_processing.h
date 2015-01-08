@@ -25,7 +25,8 @@ Contact: Guillaume.Huard@imag.fr
 #include <stdint.h>
 #include "arm_core.h"
 
-int arm_data_processing(arm_core p, uint32_t ins);
-int32_t ror(int32_t shift_imm, int32_t rm);
+int arm_data_processing_shift(arm_core p, uint32_t ins);
+void opChoice(arm_core p, uint32_t ins, uint32_t cpsr, int32_t shifter_operand, int shifter_carry_out);
+int32_t rightRotate(int32_t shift_imm, int32_t rm);
 
 #endif
