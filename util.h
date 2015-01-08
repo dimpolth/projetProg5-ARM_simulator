@@ -31,9 +31,10 @@ Contact: Guillaume.Huard@imag.fr
 #define set_bit(x, i) ((x)|(1<<(i)))
 #define clr_bit(x, i) ((x)&~(1<<(i)))
 
-#define get_bits(x, h, l) (((x)>>(l))&~((~0>>((h+1)-(l)))<<((h+1)-(l))))
+#define get_bits(x, h, l) (((x)>>(l))&~(((~0)>>((h+1)-(l)+1))<<((h+1)-(l)+1)))
 #define set_bits(x, h, l, bits) \
-                 (((x)&~((~0>>(l))<<(l)))|((x)&((~0>>(h))<<(h)))|((bits)<<(l)))
+                 (((x)&~(((~0)>>(l))<<(l)))|((x)&(((~0)>>((h)+1))<<((h)+1)))| \
+		  ((bits)<<(l)))
 
 #define reverse_2(x) ((((x)&0xFF)<<8)|(((x)>>8)&0xFF))
 #define reverse_4(x) ((((x)&0xFF)<<24)|((((x)>>8)&0xFF)<<16)|\
