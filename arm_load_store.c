@@ -32,8 +32,7 @@ int arm_load_store(arm_core p, uint32_t ins) {
 	uint32_t index = 0;
 	uint32_t rm = arm_read_register(p, get_bits(ins, 3, 0));
 	uint32_t rn = arm_read_register(p, get_bits(ins, 19, 16));
-	uint32_t rd = arm_read_register(p, get_bits(ins, 15, 12));
-	uint8_t cond = get_bits(ins, 31, 28);
+	uint32_t rd = get_bits(ins, 15, 12);
 	uint8_t shift = get_bits(ins, 6, 5);
 	uint8_t shift_imm = get_bits(ins, 11, 7);
 	uint8_t I = get_bit(ins, 25);
@@ -45,7 +44,6 @@ int arm_load_store(arm_core p, uint32_t ins) {
 	uint16_t offset = get_bits(ins, 11, 0);
 	
 	if (!I && P && !W){ // immediate offset
-		printf("1\n");
 		if (U)
 			address = rn + offset;
 		else
@@ -53,7 +51,6 @@ int arm_load_store(arm_core p, uint32_t ins) {
 	}
 
 	if (I && P && !W){ 
-		printf("2\n");
 		if(!get_bits(ins, 11, 4)){ // register offset
 			if (U)
 				address = rn + rm;
@@ -70,16 +67,14 @@ int arm_load_store(arm_core p, uint32_t ins) {
 	}
 
 	if(!I && P && W){ // immediate pre_indexed
-		printf("3\n");
 		if (U)
 			address = rn + offset;
 		else
 			address = rn - offset;
-		if (cond) arm_write_register(p, rn, address);
+		arm_write_register(p, rn, address);
 	}
 	
 	if(I && P && W){
-		printf("4\n");
 		if(!get_bits(ins, 11, 4)){ // register pre-indexed
 			if (U)
 				address = rn + index;
@@ -93,41 +88,41 @@ int arm_load_store(arm_core p, uint32_t ins) {
 		else
 			address = rn - index;
 		}
-		if (cond) arm_write_register(p, rn, address);
+		arm_write_register(p, rn, address);
 	}
 
 	if(!I && !P && !W){ // immediate post-indexed
-		printf("5\n");
 		address = rn;
-		if (cond) arm_write_register(p, rn, rn+offset);
+		if (U) arm_write_register(p, rn, rn+offset);
 		else arm_write_register(p, rn, rn-offset);
 	}
 
 	if(I && !P && !W){
-		printf("6\n");
 		if(!get_bits(ins, 11, 4)){ // register post-indexed
 			address = rn;
-			if (cond) arm_write_register(p, rn, rn+rm);
+			if (U) arm_write_register(p, rn, rn+rm);
 			else arm_write_register(p, rn, rn-rm);
 		}
 		else { // scaled register post-indexed
 			address = rn;
 			index = scaled_switch(p, rm, shift, shift_imm);
-			if (cond) arm_write_register(p, rn, rn+index);
+			if (U) arm_write_register(p, rn, rn+index);
 			else arm_write_register(p, rn, rn-index);
 		}
 	}
 
-	if(!address) return UNDEFINED_INSTRUCTION;
+	//if(!address) return UNDEFINED_INSTRUCTION;
 	int erreur;
 	if(L){ // Load
 		if (B){ // LDRB
 			uint8_t res;
+			printf("LDRB, address : %x \n",address);
 			erreur = arm_read_byte(p, address, &res);
 			erreur = arm_write_register(p, rd, res);
 		}
 		else { // LDR
 			uint32_t res;
+			printf("LDR, address : %x \n",address);
 			erreur = arm_read_word(p, address, &res);
 			erreur = arm_write_register(p, rd, res);
 		}
@@ -135,13 +130,17 @@ int arm_load_store(arm_core p, uint32_t ins) {
 	else { // Store
 		if (B){ // STRB
 			uint8_t res;
+			printf("STRB, address : %x \n",address);
 			res = arm_read_register(p, rd);
 			erreur = arm_write_byte(p, address, res);
 		}
 		else { // STR
 			uint32_t res;
+			uint32_t temp;			
 			res = arm_read_register(p, rd);
 			erreur = arm_write_word(p, address, res);
+			erreur = arm_read_word(p,address,&temp);
+			printf("STR, address : %x , %x\n",address,temp);
 		}
 	}
 	return erreur;
@@ -179,7 +178,6 @@ int arm_load_store_multiple(arm_core p, uint32_t ins) {
 	uint32_t end_address = 0;
 	uint32_t register_list = arm_read_register(p, get_bits(ins, 15, 0));
 	uint32_t rn = arm_read_register(p, get_bits(ins, 19, 16));
-	uint8_t cond = get_bits(ins, 31, 28);
 	uint8_t P = get_bit(ins, 24);
 	uint8_t U = get_bit(ins, 23);
 	uint8_t W = get_bit(ins, 21);
@@ -188,28 +186,28 @@ int arm_load_store_multiple(arm_core p, uint32_t ins) {
 	if(!P && U){ // increment after
 		start_address = rn;
 		end_address = rn + (number_of_set_bits_in(register_list)*4)-4;
-		if(cond && W==1)
+		if(W==1)
 			rn = rn + (number_of_set_bits_in(register_list)*4);
 	}
 
 	if(P && U){ // increment before
 		start_address = rn + 4;
 		end_address = rn + (number_of_set_bits_in(register_list)*4);
-		if(cond && W==1)
+		if(W==1)
 			rn = rn + (number_of_set_bits_in(register_list)*4);
 	}
 
 	if(!P && !U){ // decrement after
 		end_address = rn;
 		start_address = rn - (number_of_set_bits_in(register_list)*4)+4;
-		if(cond && W==1)
+		if(W==1)
 			rn = rn - (number_of_set_bits_in(register_list)*4);
 	}
 
 	if(P && !U){ // decrement before
 		end_address = rn - 4;
 		start_address = rn - (number_of_set_bits_in(register_list)*4);
-		if(cond && W==1)
+		if(W==1)
 			rn = rn - (number_of_set_bits_in(register_list)*4);
 	}
 	
