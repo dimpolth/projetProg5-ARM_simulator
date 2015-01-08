@@ -73,9 +73,10 @@ static int arm_execute_instruction(arm_core p) {
 		int type_instr = get_bits(instr,27,25);
 		switch (type_instr) {
 			case 0 :
-				if(get_bits(instr, 25, 24) == 2 && get_bit(instr, 20) == 0) {
-					if(get_bit(instr, 4) == 0 || (get_bit(instr, 7) == 0 && get_bit(instr, 4) == 1))
+				if(get_bits(instr, 25, 24) == 2 || (get_bit(instr, 7) == 1 && get_bit(instr, 4) == 1)) {
+					if(get_bit(instr, 4) == 0 || (get_bit(instr, 7) == 0 && get_bit(instr, 4) == 1) || (get_bit(instr, 7) == 1 && get_bit(instr, 4) == 1)){						
 						deroul = arm_miscellaneous(p, instr);
+					}
 				}
 				else {
 					if(get_bit(instr, 4) == 0 || (get_bit(instr, 7) == 0 && get_bit(instr, 4) == 1))
