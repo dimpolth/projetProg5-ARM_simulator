@@ -8,7 +8,5 @@
 arm_simulator
 send_irq
 memory_test
-config.*
-Examples/config.*
 Makefile
 Examples/Makefile
