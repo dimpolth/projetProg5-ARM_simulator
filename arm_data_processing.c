@@ -151,7 +151,7 @@ int arm_data_processing_shift(arm_core p, uint32_t ins) {
 		case 7 : //Register ROR
 			if(shift_imm == 0) {
 				shifter_operand = rm;
-				chifter_carry_out = c;
+				shifter_carry_out = c;
 			}
 			else if(get_bits(shift_imm, 4, 0) == 0) {
 				shifter_operand = rm;
@@ -165,11 +165,24 @@ int arm_data_processing_shift(arm_core p, uint32_t ins) {
 			break;
 	}
 	opChoice(p, ins, cpsr, shifter_operand, shifter_carry_out);
-	return UNDEFINED_INSTRUCTION;
+	return 0;
 }
 
-int arm_data_processing_immediate_msr(arm_core p, int32_t ins) {
-	return UNDEFINED_INSTRUCTION;
+int arm_data_processing_immediate(arm_core p, uint32_t ins) {
+	int32_t shifter_operand;
+	int8_t immed_8;
+	uint32_t cpsr = arm_read_cpsr(p);
+	int c, shifter_carry_out, rotate_imm;
+	c = get_bit(cpsr, C);
+	rotate_imm = get_bits(ins, 11, 8);
+	immed_8 = get_bits(ins, 8, 0);
+	shifter_operand = rightRotate(2*rotate_imm, immed_8);
+	if(rotate_imm == 0)
+		shifter_carry_out = c;
+	else
+		shifter_carry_out = get_bit(ins, 31);
+	opChoice(p, ins, cpsr, shifter_operand, shifter_carry_out);
+	return 0;
 }
 
 void opChoice(arm_core p, uint32_t ins, uint32_t cpsr, int32_t shifter_operand, int shifter_carry_out) {
@@ -181,7 +194,7 @@ void opChoice(arm_core p, uint32_t ins, uint32_t cpsr, int32_t shifter_operand, 
 	numRd = get_bits(ins, 15, 12);
 	rn = arm_read_register(p, numRn);
 	opcode = get_bits(ins, 24, 21);
-	s = get_bit(ins, 20)
+	s = get_bit(ins, 20);
 	n = get_bit(cpsr, N);
 	z = get_bit(cpsr, Z);
 	c = get_bit(cpsr, C);
