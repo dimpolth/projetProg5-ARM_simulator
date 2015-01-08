@@ -60,8 +60,12 @@ int arm_coprocessor_others_swi(arm_core p, uint32_t ins) {
 int arm_miscellaneous(arm_core p, uint32_t ins) {
 
 	// MRS
+	printf("%d, %d", get_bits(ins,27,23), get_bits(ins,21,20));
 	if (get_bits(ins,27,23) == 2 && get_bits(ins,21,20) == 0) { 
-		arm_write_register(p,get_bits(ins,15,12),arm_read_cpsr(p));
+		if (get_bit(ins,22) == 0) // CPSR -> Rd
+			arm_write_register(p,get_bits(ins,15,12),arm_read_cpsr(p));
+		else			  // SPSR -> Rd
+			arm_write_register(p,get_bits(ins,15,12),arm_read_spsr(p));
 		return 0;
 	}
 
