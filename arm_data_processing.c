@@ -281,7 +281,14 @@ void opChoice(arm_core p, uint32_t ins, uint32_t cpsr, int32_t shifter_operand, 
 					z = 1;
 				else
 					z = 0;
-				//TODO c & v flags
+				if (get_bit(rn, 31) == get_bit(shifter_operand, 31) && get_bit(res, 31) != get_bit(rn, 31)) {
+					v = 1;
+				else
+					v = 0;
+				int it; c = 0;
+				for(it = 0; it<32; it++) {
+					c = (c + get_bit(shifter_operand, it) + get_bit(rn, it)) >> 1;
+				}
 			}
 			break;
 		case 5:	//ADC
@@ -295,7 +302,14 @@ void opChoice(arm_core p, uint32_t ins, uint32_t cpsr, int32_t shifter_operand, 
 					z = 1;
 				else
 					z = 0;
-				//TODO c & v flags
+				if (get_bit(rn, 31) == get_bit(shifter_operand, 31) && get_bit(res, 31) != get_bit(rn, 31)) {
+					v = 1;
+				else
+					v = 0;
+				int it; c = 0;
+				for(it = 0; it<32; it++) {
+					c = (c + get_bit(shifter_operand, it) + get_bit(rn, it)) >> 1;
+				}
 			}
 			break;
 		case 6:	//SBC
@@ -381,7 +395,14 @@ void opChoice(arm_core p, uint32_t ins, uint32_t cpsr, int32_t shifter_operand, 
 				z = 1;
 			else
 				z = 0;
-			//TODO c & v flags
+			if (get_bit(rn, 31) == get_bit(shifter_operand, 31) && get_bit(res, 31) != get_bit(rn, 31)) {
+					v = 1;
+				else
+					v = 0;
+				int it; c = 0;
+				for(it = 0; it<32; it++) {
+					c = (c + get_bit(shifter_operand, it) + get_bit(rn, it)) >> 1;
+				}
 			break;
 		case 12:	//ORR
 			res = rn | shifter_operand;
