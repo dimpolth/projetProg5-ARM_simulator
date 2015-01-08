@@ -25,7 +25,7 @@ Contact: Guillaume.Huard@imag.fr
 #include "util.h"
 
 struct memory_data {
-    int8_t *address;
+    uint8_t *address;
     size_t size;
 };
 
@@ -59,7 +59,7 @@ int memory_read_byte(memory mem, uint32_t address, uint8_t *value) {
     
     if (address > mem->size)
 	return -1;
-    int8_t * ad;
+    uint8_t * ad;
     ad = mem->address + address;
     *value = *ad;
     return 0;
@@ -69,8 +69,8 @@ int memory_read_half(memory mem, int be, uint32_t address, uint16_t *value) {
     
     if (address+1 > mem->size)
 	return -1;
-    int8_t * ad;
-    int16_t val = 0;
+    uint8_t * ad;
+    uint16_t val = 0;
     int i;
     ad = mem->address + address;
 
@@ -91,8 +91,8 @@ int memory_read_word(memory mem, int be, uint32_t address, uint32_t *value) {
     
     if (address+3 > mem->size)
 	return -1;
-    int8_t * ad;
-    int32_t val = 0;
+    uint8_t * ad;
+    uint32_t val = 0;
     int i;
     ad = mem->address + address;
 
@@ -113,7 +113,7 @@ int memory_write_byte(memory mem, uint32_t address, uint8_t value) {
     
     if (address > mem->size)
 	return -1;
-    int8_t * ad;
+    uint8_t * ad;
     ad = mem->address + address;
     *ad = value;
     return 0;
@@ -123,7 +123,7 @@ int memory_write_half(memory mem, int be, uint32_t address, uint16_t value) {
     
     if (address+1 > mem->size)
 	return -1;
-    int8_t * ad;
+    uint8_t * ad;
     int i;
     ad = mem->address + address;
 
@@ -143,7 +143,7 @@ int memory_write_word(memory mem, int be, uint32_t address, uint32_t value) {
     
     if (address+3 > mem->size)
 	return -1;
-    int8_t * ad;
+    uint8_t * ad;
     int i;
     ad = mem->address + address;
 
