@@ -30,7 +30,7 @@ Contact: Guillaume.Huard@imag.fr
 /* Decoding functions for different classes of instructions */
 int arm_data_processing_shift(arm_core p, uint32_t ins) {
 	uint8_t numRm, shiftType;
-	int32_t rm, shift_imm, shifter_operand;
+	uint32_t rm, shift_imm, shifter_operand;
 	uint32_t cpsr = arm_read_cpsr(p);
 	int c, shifter_carry_out;
 	c = get_bit(cpsr, C);
@@ -169,8 +169,8 @@ int arm_data_processing_shift(arm_core p, uint32_t ins) {
 }
 
 int arm_data_processing_immediate(arm_core p, uint32_t ins) {
-	int32_t shifter_operand;
-	int8_t immed_8;
+	uint32_t shifter_operand;
+	uint8_t immed_8;
 	uint32_t cpsr = arm_read_cpsr(p);
 	int c, shifter_carry_out, rotate_imm;
 	c = get_bit(cpsr, C);
@@ -185,10 +185,10 @@ int arm_data_processing_immediate(arm_core p, uint32_t ins) {
 	return 0;
 }
 
-void opChoice(arm_core p, uint32_t ins, uint32_t cpsr, int32_t shifter_operand, int shifter_carry_out) {
+void opChoice(arm_core p, uint32_t ins, uint32_t cpsr, uint32_t shifter_operand, int shifter_carry_out) {
 	uint8_t opcode, numRn, numRd;
-	int32_t res;
-	int32_t rn;
+	uint32_t res;
+	uint32_t rn;
 	int n, z, c, v, s;
 	numRn = get_bits(ins, 19, 16);
 	numRd = get_bits(ins, 15, 12);
@@ -482,8 +482,8 @@ void opChoice(arm_core p, uint32_t ins, uint32_t cpsr, int32_t shifter_operand, 
 	arm_write_cpsr(p, cpsr);
 }
 
-int32_t rightRotate (int32_t shift_imm, int32_t rm) {
-	int32_t res = rm;
+int32_t rightRotate (uint32_t shift_imm, uint32_t rm) {
+	uint32_t res = rm;
 	int i, tmp;
 	for(i = 0; i < shift_imm; i++) {
 		tmp = get_bit(rm, 0);
