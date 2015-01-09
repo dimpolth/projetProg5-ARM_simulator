@@ -281,7 +281,7 @@ void opChoice(arm_core p, uint32_t ins, uint32_t cpsr, int32_t shifter_operand, 
 					z = 1;
 				else
 					z = 0;
-				if (get_bit(rn, 31) == get_bit(shifter_operand, 31) && get_bit(res, 31) != get_bit(rn, 31)) {
+				if (get_bit(rn, 31) == get_bit(shifter_operand, 31) && get_bit(res, 31) != get_bit(rn, 31))
 					v = 1;
 				else
 					v = 0;
@@ -302,7 +302,7 @@ void opChoice(arm_core p, uint32_t ins, uint32_t cpsr, int32_t shifter_operand, 
 					z = 1;
 				else
 					z = 0;
-				if (get_bit(rn, 31) == get_bit(shifter_operand, 31) && get_bit(res, 31) != get_bit(rn, 31)) {
+				if (get_bit(rn, 31) == get_bit(shifter_operand, 31) && get_bit(res, 31) != get_bit(rn, 31))
 					v = 1;
 				else
 					v = 0;
@@ -395,7 +395,7 @@ void opChoice(arm_core p, uint32_t ins, uint32_t cpsr, int32_t shifter_operand, 
 				z = 1;
 			else
 				z = 0;
-			if (get_bit(rn, 31) == get_bit(shifter_operand, 31) && get_bit(res, 31) != get_bit(rn, 31)) {
+			if (get_bit(rn, 31) == get_bit(shifter_operand, 31) && get_bit(res, 31) != get_bit(rn, 31))
 					v = 1;
 				else
 					v = 0;
