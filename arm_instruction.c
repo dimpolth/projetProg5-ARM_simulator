@@ -65,16 +65,17 @@ static int arm_execute_instruction(arm_core p) {
 		case 15 : break;
 		default : return -1;
 	}
-	printf("Instr : %x\n",instr);
-    printf("Cond : %d\n",cond);
   	// Execution (ou pas) de l'instruction
 	int deroul = 0;
+	int type_instr;
 	if (res) {
-		int type_instr = get_bits(instr,27,25);
+		type_instr = get_bits(instr,27,25);
 		switch (type_instr) {
 			case 0 :
 				if(get_bits(instr, 25, 24) == 2 || (get_bit(instr, 7) == 1 && get_bit(instr, 4) == 1)) {
-					if(get_bit(instr, 4) == 0 || (get_bit(instr, 7) == 0 && get_bit(instr, 4) == 1) || (get_bit(instr, 7) == 1 && get_bit(instr, 4) == 1)){						
+					if(get_bit(instr, 4) == 0 || (get_bit(instr, 7) == 0 && get_bit(instr, 4) == 1) 
+								  || (get_bit(instr, 7) == 1 && get_bit(instr, 4) == 1))
+					{			
 						deroul = arm_miscellaneous(p, instr);
 					}
 				}
@@ -94,8 +95,15 @@ static int arm_execute_instruction(arm_core p) {
 			case 7 : deroul = arm_coprocessor_others_swi(p, instr); break;
 			default : return -1; //Cas normalement impossible à atteindre
 		}
-		printf("type instr = %d\n",type_instr);
 	}
+	
+	printf("-- -- -- -- -- -- -- -- --\n");
+	printf("-- Instruction : %x --\n",instr);
+	printf("-- N : %d -- Z : %d -- C : %d -- V : %d --\n",n,z,c,v); 
+	printf("-- Mode d'utilisation : %s --\n",arm_get_mode_name(cpsr & 0x1F));
+	printf("-- Condition : %d - Type Instruction : %d --\n",cond,type_instr);
+		
+
 	return deroul;
 }
 
