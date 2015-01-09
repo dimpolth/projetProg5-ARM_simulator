@@ -32,6 +32,7 @@ int arm_load_store(arm_core p, uint32_t ins) {
 	uint32_t index = 0;
 	uint32_t rm = arm_read_register(p, get_bits(ins, 3, 0));
 	uint32_t rn = arm_read_register(p, get_bits(ins, 19, 16));
+	uint8_t rn_id = get_bits(ins, 19, 16);
 	uint32_t rd = get_bits(ins, 15, 12);
 	uint8_t shift = get_bits(ins, 6, 5);
 	uint8_t shift_imm = get_bits(ins, 11, 7);
@@ -59,6 +60,7 @@ int arm_load_store(arm_core p, uint32_t ins) {
 		}
 		else {
 		index = scaled_switch(p, rm, shift, shift_imm); // scaled register offset
+		printf("Scaled register offset\n");
 		if (U)
 			address = rn + index;
 		else
@@ -71,7 +73,7 @@ int arm_load_store(arm_core p, uint32_t ins) {
 			address = rn + offset;
 		else
 			address = rn - offset;
-		arm_write_register(p, rn, address);
+		arm_write_register(p, rn_id, address);
 	}
 	
 	if(I && P && W){
@@ -88,26 +90,26 @@ int arm_load_store(arm_core p, uint32_t ins) {
 		else
 			address = rn - index;
 		}
-		arm_write_register(p, rn, address);
+		arm_write_register(p, rn_id, address);
 	}
 
 	if(!I && !P && !W){ // immediate post-indexed
 		address = rn;
-		if (U) arm_write_register(p, rn, rn+offset);
-		else arm_write_register(p, rn, rn-offset);
+		if (U) arm_write_register(p, rn_id, rn+offset);
+		else arm_write_register(p, rn_id, rn-offset);
 	}
 
 	if(I && !P && !W){
 		if(!get_bits(ins, 11, 4)){ // register post-indexed
 			address = rn;
-			if (U) arm_write_register(p, rn, rn+rm);
-			else arm_write_register(p, rn, rn-rm);
+			if (U) arm_write_register(p, rn_id, rn+rm);
+			else arm_write_register(p, rn_id, rn-rm);
 		}
 		else { // scaled register post-indexed
 			address = rn;
 			index = scaled_switch(p, rm, shift, shift_imm);
-			if (U) arm_write_register(p, rn, rn+index);
-			else arm_write_register(p, rn, rn-index);
+			if (U) arm_write_register(p, rn_id, rn+index);
+			else arm_write_register(p, rn_id, rn-index);
 		}
 	}
 
@@ -151,6 +153,7 @@ uint32_t scaled_switch(arm_core p, uint32_t rm, uint8_t shift, uint8_t shift_imm
 	uint32_t index = 0;
 	switch (shift){
 		case 0: index = rm << shift_imm;
+				printf("index : %d \n",index);
 				break;
 		case 1: if(shift_imm == 0)
 					index = 0;
