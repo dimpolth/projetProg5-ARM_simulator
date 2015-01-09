@@ -482,7 +482,7 @@ void opChoice(arm_core p, uint32_t ins, uint32_t cpsr, uint32_t shifter_operand,
 	arm_write_cpsr(p, cpsr);
 }
 
-int32_t rightRotate (uint32_t shift_imm, uint32_t rm) {
+uint32_t rightRotate (uint32_t shift_imm, uint32_t rm) {
 	uint32_t res = rm;
 	int i, tmp;
 	for(i = 0; i < shift_imm; i++) {
