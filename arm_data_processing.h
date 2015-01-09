@@ -27,7 +27,6 @@ Contact: Guillaume.Huard@imag.fr
 
 int arm_data_processing_shift(arm_core p, uint32_t ins);
 void opChoice(arm_core p, uint32_t ins, uint32_t cpsr, uint32_t shifter_operand, int shifter_carry_out);
-uint32_t rightRotate(uint32_t shift_imm, uint32_t rm);
 int arm_data_processing_immediate(arm_core p, uint32_t ins);
 
 #endif

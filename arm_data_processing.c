@@ -29,8 +29,8 @@ Contact: Guillaume.Huard@imag.fr
 
 /* Decoding functions for different classes of instructions */
 int arm_data_processing_shift(arm_core p, uint32_t ins) {
-	uint8_t numRm, shiftType;
-	uint32_t rm, shift_imm, shifter_operand;
+	uint8_t numRm, shiftType, shift_imm;
+	uint32_t rm, shifter_operand;
 	uint32_t cpsr = arm_read_cpsr(p);
 	int c, shifter_carry_out;
 	c = get_bit(cpsr, C);
@@ -114,7 +114,7 @@ int arm_data_processing_shift(arm_core p, uint32_t ins) {
 				}
 			}
 			else {
-				shifter_operand = rm >> shift_imm;
+				shifter_operand = asr(rm, shift_imm);
 				shifter_carry_out = get_bit(rm,shift_imm - 1);
 			}
 			break;
@@ -124,7 +124,7 @@ int arm_data_processing_shift(arm_core p, uint32_t ins) {
 				shifter_carry_out = c;
 			}
 			else if(shift_imm < 32){
-				shifter_operand = rm >> shift_imm;
+				shifter_operand = asr(rm, shift_imm);
 				shifter_carry_out = get_bit(rm, shift_imm-1);
 			}
 			else {
@@ -144,7 +144,7 @@ int arm_data_processing_shift(arm_core p, uint32_t ins) {
 				shifter_carry_out = get_bit(rm, 0);
 			}
 			else { //Immediat ROR
-				shifter_operand = rightRotate(shift_imm, rm);
+				shifter_operand = ror(shift_imm, rm);
 				shifter_carry_out = get_bit(shifter_operand, shift_imm-1);
 			}
 			break;
@@ -159,7 +159,7 @@ int arm_data_processing_shift(arm_core p, uint32_t ins) {
 			}
 			else {
 				shift_imm = get_bits(shift_imm, 4, 0);
-				shifter_operand = rightRotate(shift_imm, rm);
+				shifter_operand = ror(shift_imm, rm);
 				shifter_carry_out = get_bit(shifter_operand, shift_imm -1);
 			}
 			break;
@@ -176,7 +176,7 @@ int arm_data_processing_immediate(arm_core p, uint32_t ins) {
 	c = get_bit(cpsr, C);
 	rotate_imm = get_bits(ins, 11, 8);
 	immed_8 = get_bits(ins, 8, 0);
-	shifter_operand = rightRotate(2*rotate_imm, immed_8);
+	shifter_operand = ror(2*rotate_imm, immed_8);
 	if(rotate_imm == 0)
 		shifter_carry_out = c;
 	else
@@ -203,7 +203,14 @@ void opChoice(arm_core p, uint32_t ins, uint32_t cpsr, uint32_t shifter_operand,
 	case 0:	//AND
 		res = rn & shifter_operand;
 		if(s == 1 && numRd == 15) {
-			//interruption
+			if(arm_current_mode_has_spsr(p)) {
+				cpsr = arm_read_spsr(p);
+				arm_write_cpsr(p, cpsr);
+				n = get_bit(cpsr, N);
+				z = get_bit(cpsr, Z);
+				c = get_bit(cpsr, C);
+				v = get_bit(cpsr, V);
+			}
 		}
 		else if(s == 1) {
 			n = get_bit(res, 31);
@@ -217,7 +224,14 @@ void opChoice(arm_core p, uint32_t ins, uint32_t cpsr, uint32_t shifter_operand,
 	case 1:	//EOR
 		res = rn ^ shifter_operand;
 		if(s == 1 && numRd == 15) {
-			//interruption
+			if(arm_current_mode_has_spsr(p)) {
+				cpsr = arm_read_spsr(p);
+				arm_write_cpsr(p, cpsr);
+				n = get_bit(cpsr, N);
+				z = get_bit(cpsr, Z);
+				c = get_bit(cpsr, C);
+				v = get_bit(cpsr, V);
+			}
 		}
 		else if(s == 1) {
 			n = get_bit(res, 31);
@@ -231,7 +245,14 @@ void opChoice(arm_core p, uint32_t ins, uint32_t cpsr, uint32_t shifter_operand,
 		case 2:	//SUB
 			res = rn - shifter_operand;
 			if(s == 1 && numRd == 15) {
-				//interruption
+				if(arm_current_mode_has_spsr(p)) {
+				cpsr = arm_read_spsr(p);
+				arm_write_cpsr(p, cpsr);
+				n = get_bit(cpsr, N);
+				z = get_bit(cpsr, Z);
+				c = get_bit(cpsr, C);
+				v = get_bit(cpsr, V);
+			}
 			}
 			else if(s == 1) {
 				n = get_bit(res, 31);
@@ -252,7 +273,14 @@ void opChoice(arm_core p, uint32_t ins, uint32_t cpsr, uint32_t shifter_operand,
 		case 3:	//RSB
 			res = shifter_operand - rn;
 			if(s == 1 && numRd == 15) {
-				//interruption
+				if(arm_current_mode_has_spsr(p)) {
+				cpsr = arm_read_spsr(p);
+				arm_write_cpsr(p, cpsr);
+				n = get_bit(cpsr, N);
+				z = get_bit(cpsr, Z);
+				c = get_bit(cpsr, C);
+				v = get_bit(cpsr, V);
+			}
 			}
 			else if(s == 1) {
 				n = get_bit(res, 31);
@@ -273,7 +301,14 @@ void opChoice(arm_core p, uint32_t ins, uint32_t cpsr, uint32_t shifter_operand,
 		case 4:	//ADD
 			res = rn + shifter_operand;
 			if(s == 1 && numRd == 15) {
-				//interruption
+				if(arm_current_mode_has_spsr(p)) {
+				cpsr = arm_read_spsr(p);
+				arm_write_cpsr(p, cpsr);
+				n = get_bit(cpsr, N);
+				z = get_bit(cpsr, Z);
+				c = get_bit(cpsr, C);
+				v = get_bit(cpsr, V);
+			}
 			}
 			else if(s == 1) {
 				n = get_bit(res, 31);
@@ -294,7 +329,14 @@ void opChoice(arm_core p, uint32_t ins, uint32_t cpsr, uint32_t shifter_operand,
 		case 5:	//ADC
 			res = rn + shifter_operand + c;
 			if(s == 1 && numRd == 15) {
-				//interruption
+				if(arm_current_mode_has_spsr(p)) {
+				cpsr = arm_read_spsr(p);
+				arm_write_cpsr(p, cpsr);
+				n = get_bit(cpsr, N);
+				z = get_bit(cpsr, Z);
+				c = get_bit(cpsr, C);
+				v = get_bit(cpsr, V);
+			}
 			}
 			else if(s == 1) {
 				n = get_bit(res, 31);
@@ -315,7 +357,14 @@ void opChoice(arm_core p, uint32_t ins, uint32_t cpsr, uint32_t shifter_operand,
 		case 6:	//SBC
 			res = rn - shifter_operand - ~c;
 			if(s == 1 && numRd == 15) {
-				//interruption
+				if(arm_current_mode_has_spsr(p)) {
+				cpsr = arm_read_spsr(p);
+				arm_write_cpsr(p, cpsr);
+				n = get_bit(cpsr, N);
+				z = get_bit(cpsr, Z);
+				c = get_bit(cpsr, C);
+				v = get_bit(cpsr, V);
+			}
 			}
 			else if(s == 1) {
 				n = get_bit(res, 31);
@@ -336,7 +385,14 @@ void opChoice(arm_core p, uint32_t ins, uint32_t cpsr, uint32_t shifter_operand,
 		case 7:	//RSC
 			res = shifter_operand - rn - ~c;
 			if(s == 1 && numRd == 15) {
-				//interruption
+				if(arm_current_mode_has_spsr(p)) {
+				cpsr = arm_read_spsr(p);
+				arm_write_cpsr(p, cpsr);
+				n = get_bit(cpsr, N);
+				z = get_bit(cpsr, Z);
+				c = get_bit(cpsr, C);
+				v = get_bit(cpsr, V);
+			}
 			}
 			else if(s == 1) {
 				n = get_bit(res, 31);
@@ -407,7 +463,14 @@ void opChoice(arm_core p, uint32_t ins, uint32_t cpsr, uint32_t shifter_operand,
 		case 12:	//ORR
 			res = rn | shifter_operand;
 			if(s == 1 && numRd == 15) {
-				//interruption
+				if(arm_current_mode_has_spsr(p)) {
+				cpsr = arm_read_spsr(p);
+				arm_write_cpsr(p, cpsr);
+				n = get_bit(cpsr, N);
+				z = get_bit(cpsr, Z);
+				c = get_bit(cpsr, C);
+				v = get_bit(cpsr, V);
+			}
 			}
 			else if(s == 1) {
 				n = get_bit(res, 31);
@@ -421,7 +484,14 @@ void opChoice(arm_core p, uint32_t ins, uint32_t cpsr, uint32_t shifter_operand,
 		case 13:	//MOV
 			res = shifter_operand;
 			if(s == 1 && numRd == 15) {
-				//interruption
+				if(arm_current_mode_has_spsr(p)) {
+				cpsr = arm_read_spsr(p);
+				arm_write_cpsr(p, cpsr);
+				n = get_bit(cpsr, N);
+				z = get_bit(cpsr, Z);
+				c = get_bit(cpsr, C);
+				v = get_bit(cpsr, V);
+			}
 			}
 			else if(s == 1) {
 				n = get_bit(res, 31);
@@ -435,7 +505,14 @@ void opChoice(arm_core p, uint32_t ins, uint32_t cpsr, uint32_t shifter_operand,
 		case 14:	//BIC
 			res = rn & ~shifter_operand;
 			if(s == 1 && numRd == 15) {
-				//interruption
+				if(arm_current_mode_has_spsr(p)) {
+				cpsr = arm_read_spsr(p);
+				arm_write_cpsr(p, cpsr);
+				n = get_bit(cpsr, N);
+				z = get_bit(cpsr, Z);
+				c = get_bit(cpsr, C);
+				v = get_bit(cpsr, V);
+			}
 			}
 			else if(s == 1) {
 				n = get_bit(res, 31);
@@ -449,7 +526,14 @@ void opChoice(arm_core p, uint32_t ins, uint32_t cpsr, uint32_t shifter_operand,
 		case 15:	//MVN
 			res = ~shifter_operand;
 			if(s == 1 && numRd == 15) {
-				//interruption
+				if(arm_current_mode_has_spsr(p)) {
+				cpsr = arm_read_spsr(p);
+				arm_write_cpsr(p, cpsr);
+				n = get_bit(cpsr, N);
+				z = get_bit(cpsr, Z);
+				c = get_bit(cpsr, C);
+				v = get_bit(cpsr, V);
+			}
 			}
 			else if(s == 1) {
 				n = get_bit(res, 31);
@@ -480,18 +564,4 @@ void opChoice(arm_core p, uint32_t ins, uint32_t cpsr, uint32_t shifter_operand,
 	else
 		cpsr = set_bit(cpsr, C);
 	arm_write_cpsr(p, cpsr);
-}
-
-uint32_t rightRotate (uint32_t shift_imm, uint32_t rm) {
-	uint32_t res = rm;
-	int i, tmp;
-	for(i = 0; i < shift_imm; i++) {
-		tmp = get_bit(rm, 0);
-		res = res >> 1;
-		if(tmp == 0)
-			res = clr_bit(res, 31);
-		else
-			res = set_bit(res, 31);
-	}
-	return res;
 }
