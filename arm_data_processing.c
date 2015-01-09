@@ -187,7 +187,7 @@ int arm_data_processing_immediate(arm_core p, uint32_t ins) {
 
 void opChoice(arm_core p, uint32_t ins, uint32_t cpsr, int32_t shifter_operand, int shifter_carry_out) {
 	uint8_t opcode, numRn, numRd;
-	uint32_t res;
+	int32_t res;
 	int32_t rn;
 	int n, z, c, v, s;
 	numRn = get_bits(ins, 19, 16);
