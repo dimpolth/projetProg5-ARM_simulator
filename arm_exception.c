@@ -34,10 +34,53 @@ Contact: Guillaume.Huard@imag.fr
 #define Exception_bit_9 (CP15_reg1_EEbit << 9)
 
 void arm_exception(arm_core p, unsigned char exception) {
-    /* We only support RESET initially */
-    /* Semantics of reset interrupt (ARM manual A2-18) */
-    if (exception == RESET) {
-        arm_write_cpsr(p, 0x1d3 | Exception_bit_9);
-	arm_write_usr_register(p, 15, 0);
-    }
+
+	uint32_t cpsr = arm_read_cpsr(p);
+	int CPSR_6 = get_bit(cpsr,6) << 6;
+	int CPSR_8 = get_bit(cpsr,8) << 8;
+
+	switch (exception) {
+		// VOIR PAGE A2-18 ET PLUS POUR VERIFIER LES FONCTIONS
+		case RESET :
+			arm_write_cpsr(p, 0x1d3 | Exception_bit_9);
+			arm_write_register(p, 15, 0);
+			break;
+		case UNDEFINED_INSTRUCTION :
+			arm_write_usr_register(p, 15, arm_read_register(p, 15));
+			arm_write_spsr(p, arm_read_cpsr(p));
+			arm_write_cpsr(p, 0x09b | Exception_bit_9 | CPSR_6 | CPSR_8); 
+			arm_write_register(p, 15, 4);
+			break;
+		case SOFTWARE_INTERRUPT :
+			arm_write_usr_register(p, 15, arm_read_register(p, 15));
+			arm_write_spsr(p, arm_read_cpsr(p));
+			arm_write_cpsr(p, 0x093 | Exception_bit_9 | CPSR_6 | CPSR_8); 
+			arm_write_register(p, 15, 8);
+			break;
+		case PREFETCH_ABORT :
+			arm_write_usr_register(p, 15, arm_read_register(p, 15)); 
+			arm_write_spsr(p, arm_read_cpsr(p));
+			arm_write_cpsr(p, 0x197 | Exception_bit_9 | CPSR_6); 
+			arm_write_register(p, 15, 12);
+			break;
+		case DATA_ABORT :
+			arm_write_usr_register(p, 15, arm_read_register(p, 15)+4); 
+			arm_write_spsr(p, arm_read_cpsr(p));
+			arm_write_cpsr(p, 0x197 | Exception_bit_9 | CPSR_6); 
+			arm_write_register(p, 15, 16);
+			break;
+		case INTERRUPT :
+			arm_write_usr_register(p, 15, arm_read_register(p, 15)+4); 
+			arm_write_spsr(p, arm_read_cpsr(p));
+			arm_write_cpsr(p, 0x192 | Exception_bit_9 | CPSR_6); 
+			arm_write_register(p, 15, 24);
+			break;
+		case FAST_INTERRUPT :
+			arm_write_usr_register(p, 15, arm_read_register(p, 15)+4);
+			arm_write_spsr(p, arm_read_cpsr(p));
+			arm_write_cpsr(p, 0x1d1 | Exception_bit_9); 
+			arm_write_register(p, 15, 28);
+			break;
+		default : break;
+	}
 }
