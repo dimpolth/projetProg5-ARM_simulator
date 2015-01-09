@@ -179,7 +179,7 @@ uint32_t scaled_switch(arm_core p, uint32_t rm, uint8_t shift, uint8_t shift_imm
 int arm_load_store_multiple(arm_core p, uint32_t ins) {
 	uint32_t start_address = 0;
 	uint32_t end_address = 0;
-	uint32_t register_list = arm_read_register(p, get_bits(ins, 15, 0));
+	uint32_t register_list = get_bits(ins, 15, 0);
 	uint32_t rn = arm_read_register(p, get_bits(ins, 19, 16));
 	uint8_t P = get_bit(ins, 24);
 	uint8_t U = get_bit(ins, 23);
@@ -225,6 +225,7 @@ int arm_load_store_multiple(arm_core p, uint32_t ins) {
 	if(L){ // LDM(1)
 		for(address = start_address; address <= end_address; address+=4){
 			erreur = arm_read_word(p, address, &res);
+			//printf("LDM : res= %x, nb registres=%d, list = %d\n",res,number_of_set_bits_in(register_list), register_list);
 			erreur = arm_write_register(p, get_next_register(register_list, i), res);
 			i++;
 		}
@@ -232,6 +233,7 @@ int arm_load_store_multiple(arm_core p, uint32_t ins) {
 	else { // STM(1)
 		for(address = start_address; address <= end_address; address+=4){
 			res = arm_read_register(p, get_next_register(register_list, i));
+			//printf("STM : res= %x\n",res);
 			erreur = arm_write_word(p, address, res);
 			i++;
 		}
@@ -250,8 +252,8 @@ int number_of_set_bits_in(uint16_t register_list){
 	return res;
 }
 
-int get_next_register(uint16_t register_list, int num){
-	int i;
+uint8_t get_next_register(uint16_t register_list, int num){
+	uint8_t i;
 	int cpt = 0;
 	for(i=0; i<16; i++){
 		if(get_bit(register_list, i)){

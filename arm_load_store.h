@@ -29,7 +29,7 @@ int arm_load_store(arm_core p, uint32_t ins);
 int arm_load_store_multiple(arm_core p, uint32_t ins);
 int arm_coprocessor_load_store(arm_core p, uint32_t ins);
 uint32_t scaled_switch(arm_core p, uint32_t rm, uint8_t shift, uint8_t shift_imm);
-int get_next_register(uint16_t register_list, int num);
+uint8_t get_next_register(uint16_t register_list, int num);
 int number_of_set_bits_in(uint16_t register_list);
 
 #endif
