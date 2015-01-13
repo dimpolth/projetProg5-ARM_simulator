@@ -118,14 +118,14 @@ int arm_load_store(arm_core p, uint32_t ins) {
 	if(L){ // Load
 		if (B){ // LDRB
 			uint8_t res;
-			printf("LDRB, address : %x \n",address);
 			erreur = arm_read_byte(p, address, &res);
+			printf("LDRB, address : %x , valeur : %x\n",address,res);
 			erreur = arm_write_register(p, rd, res);
 		}
 		else { // LDR
 			uint32_t res;
-			printf("LDR, address : %x \n",address);
 			erreur = arm_read_word(p, address, &res);
+			printf("LDR, address : %x , valeur : %x\n",address,res);
 			erreur = arm_write_register(p, rd, res);
 		}
 	}
