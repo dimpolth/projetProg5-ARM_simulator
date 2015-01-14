@@ -34,8 +34,8 @@
 %%% HEADERS & FOOTERS
 \usepackage{fancyhdr} % This should be set AFTER setting up the page geometry
 \pagestyle{fancy} % options: empty , plain , fancy
-\renewcommand{\headrulewidth}{0pt} % customise the layout...
-\lhead{}\chead{}\rhead{}
+\renewcommand{\headrulewidth}{1pt} % customise the layout...
+\lhead{\textsf{Universit\'e Joseph Fourier}}\chead{}\rhead{\textsf{Projet PROG5 2014-2015}}
 \lfoot{}\cfoot{\thepage}\rfoot{}
 
 %%% SECTION TITLE APPEARANCE
@@ -53,7 +53,9 @@
 
 %%% The "real" document content comes below...
 
-\title{Journal de développement}
+\title{Projet PROG5 2014-2015 \\
+Simulateur ARM \\
+Rapport de Projet}
 \author{SOULIER Clément \\
 SENECLAUZE Pierre \\
 DUPLAN Maxime \\
@@ -65,6 +67,28 @@ BERNE Corentin}
 
 \sffamily
 \maketitle
+
+\newpage
+\section{Structure du code}
+
+\newpage
+\section{Liste des fonctionnalités}
+
+\begin{tabular}{|l|c|r|}
+  \hline
+  Description & Fichier & Etat\\
+  \hline
+  Accès mémoire & memory.c & Réalisée et testée \\
+  Gestion des instructions & arm\_instruction.c & Réalisée et testée \\
+  Traitement des données & arm\_data\_processing.c & Réalisée et testée\\
+  Accès à la mémoire & arm\_load\_store.c & Réalisée et testée\\
+  Rupture de séquence & arm\_branch\_other.c & Réalisée et testée\\
+  Gestion des interruptions et des exceptions & arm\_exception.c & Réalisée et testée \\
+  \hline
+\end{tabular}.
+
+\newpage
+\section{Tests efféctués}
 
 \newpage 
 \section{Journal de la progression}
