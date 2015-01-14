@@ -355,7 +355,7 @@ void opChoice(arm_core p, uint32_t ins, uint32_t cpsr, uint32_t shifter_operand,
 			}
 			break;
 		case 6:	//SBC
-			res = rn - shifter_operand - ~c;
+			res = rn - shifter_operand + c - 1;
 			if(s == 1 && numRd == 15) {
 				if(arm_current_mode_has_spsr(p)) {
 					cpsr = arm_read_spsr(p);
@@ -383,7 +383,7 @@ void opChoice(arm_core p, uint32_t ins, uint32_t cpsr, uint32_t shifter_operand,
 			}
 			break;
 		case 7:	//RSC
-			res = shifter_operand - rn - ~c;
+			res = shifter_operand - rn + c - 1;
 			if(s == 1 && numRd == 15) {
 				if(arm_current_mode_has_spsr(p)) {
 					cpsr = arm_read_spsr(p);
