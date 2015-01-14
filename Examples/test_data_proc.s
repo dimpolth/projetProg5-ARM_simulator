@@ -22,6 +22,7 @@ main:
 	bne end
 	sbc r10, r8, #0xD	@resultat attendu : E0
 	sub r11, r7, #0xD	@resultat attendu : B9
+	mrs r12, CPSR
 end:
 	swi 0x123456
 
