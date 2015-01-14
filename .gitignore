@@ -10,3 +10,6 @@ send_irq
 memory_test
 Makefile
 Examples/Makefile
+Rapport/Rapport.aux
+Rapport/Rapport.log
+Rapport/Rapport.synctex.gz
