@@ -60,7 +60,6 @@ int arm_load_store(arm_core p, uint32_t ins) {
 		}
 		else {
 		index = scaled_switch(p, rm, shift, shift_imm); // scaled register offset
-		printf("Scaled register offset\n");
 		if (U)
 			address = rn + index;
 		else
@@ -119,20 +118,20 @@ int arm_load_store(arm_core p, uint32_t ins) {
 		if (B){ // LDRB
 			uint8_t res;
 			erreur = arm_read_byte(p, address, &res);
-			printf("LDRB, address : %x , valeur : %x\n",address,res);
+			//printf("LDRB, address : %x , valeur : %x\n",address,res);
 			erreur = arm_write_register(p, rd, res);
 		}
 		else { // LDR
 			uint32_t res;
 			erreur = arm_read_word(p, address, &res);
-			printf("LDR, address : %x , valeur : %x\n",address,res);
+			//printf("LDR, address : %x , valeur : %x\n",address,res);
 			erreur = arm_write_register(p, rd, res);
 		}
 	}
 	else { // Store
 		if (B){ // STRB
 			uint8_t res;
-			printf("STRB, address : %x \n",address);
+			//printf("STRB, address : %x \n",address);
 			res = arm_read_register(p, rd);
 			erreur = arm_write_byte(p, address, res);
 		}
@@ -142,7 +141,7 @@ int arm_load_store(arm_core p, uint32_t ins) {
 			res = arm_read_register(p, rd);
 			erreur = arm_write_word(p, address, res);
 			erreur = arm_read_word(p,address,&temp);
-			printf("STR, address : %x , %x\n",address,temp);
+			//printf("STR, address : %x , %x\n",address,temp);
 		}
 	}
 	return erreur;
@@ -153,7 +152,6 @@ uint32_t scaled_switch(arm_core p, uint32_t rm, uint8_t shift, uint8_t shift_imm
 	uint32_t index = 0;
 	switch (shift){
 		case 0: index = rm << shift_imm;
-				printf("index : %d \n",index);
 				break;
 		case 1: if(shift_imm == 0)
 					index = 0;

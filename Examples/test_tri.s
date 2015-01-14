@@ -18,7 +18,7 @@ init:
     add r11, r12, r11, lsl #8
     
     str r10, [r0]
-    str r11, [r0,#+0x4] @ point d'arret ligne 21
+    str r11, [r0,#+0x4] 	@ point d'arret ligne 21
     
     b loop
     
@@ -47,8 +47,8 @@ loop2:
     b end
     
 echanger:
-	ldrb r10, [r0] 	@ t[i]
-    ldrb r11, [r1] 	@ t[min]
+	ldrb r10, [r0] 			@ t[i]
+    ldrb r11, [r1] 			@ t[min]
     strb r11, [r0]
 	strb r10, [r1]
 	add r0, r0, #1 			@ incrementation de i

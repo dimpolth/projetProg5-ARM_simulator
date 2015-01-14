@@ -131,7 +131,7 @@ int arm_miscellaneous(arm_core p, uint32_t ins) {
 		if(L){ // Load
 			if (!S && H){ // LDRH
 				uint16_t res;
-				printf("LDRH, address : %x \n",address);
+				//printf("LDRH, address : %x \n",address);
 				erreur = arm_read_half(p, address, &res);
 				erreur = arm_write_register(p, rd, res);
 			}
@@ -139,7 +139,7 @@ int arm_miscellaneous(arm_core p, uint32_t ins) {
 		else { // Store
 			if (!S && H){ // STRH
 				uint16_t res;
-				printf("STRH, address : %x \n",address);
+				//printf("STRH, address : %x \n",address);
 				res = arm_read_register(p, rd);
 				erreur = arm_write_half(p, address, res);
 			}

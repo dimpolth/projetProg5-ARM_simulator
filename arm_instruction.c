@@ -98,11 +98,11 @@ static int arm_execute_instruction(arm_core p) {
 
 	uint32_t PC = arm_read_register(p,15);
 	
-	printf("-- -- -- -- -- -- -- -- --\n");
+	/*printf("-- -- -- -- -- -- -- -- --\n");
 	printf("-- Instruction : %x -- PC : %x --\n",instr,PC-8);
 	printf("-- N : %d -- Z : %d -- C : %d -- V : %d --\n",n,z,c,v); 
 	printf("-- Mode d'utilisation : %s --\n",arm_get_mode_name(cpsr & 0x1F));
-	printf("-- Condition : %d - Type Instruction : %d --\n",cond,type_instr);
+	printf("-- Condition : %d - Type Instruction : %d --\n",cond,type_instr);*/
 		
 
 	return deroul;

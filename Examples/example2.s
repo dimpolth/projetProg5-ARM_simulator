@@ -5,7 +5,7 @@
 		
 .section ".vector", "ax"
 	movs pc, lr
-	b fin
+	b swi
 	subs pc, lr, #4
 	subs pc, lr, #4
 	b main
@@ -28,9 +28,14 @@ main:
 	add r1, r1, #3
 	ldrb r3, [r1]
 fin:
-    swi 0x123456
+	swi 0x123456
 
 _irq_handler:
 	mov r2, #0x42
 	sub r8, r2, #1
 	subs pc, lr, #4
+
+swi:
+	swi 0x123456
+	movs pc, lr
+	
