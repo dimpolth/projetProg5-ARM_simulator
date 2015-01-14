@@ -1,25 +1,13 @@
 MEMORY
   {
-  	reset (x) : ORIGIN = 0x00, LENGTH = 4
-  	undef (x) : ORIGIN = 0x04, LENGTH = 4
-  	sofwi (x) : ORIGIN = 0x08, LENGTH = 4
-  	prefe (x) : ORIGIN = 0x0C, LENGTH = 4
-  	dataa (x) : ORIGIN = 0x10, LENGTH = 4
-  	inter (x) : ORIGIN = 0x18, LENGTH = 4
-  	finte (x) : ORIGIN = 0x1C, LENGTH = 4
-    rom (rx)   : ORIGIN = 0x20, LENGTH = 8K
-    ram (wail) : ORIGIN = 10K, LENGTH = 8K
+	vector (rx) : ORIGIN = 0x04, LENGTH = 0x1C
+	rom (rx)   : ORIGIN = 0x20, LENGTH = 8K
+	ram (wail) : ORIGIN = 10K, LENGTH = 8K
   }
 
 SECTIONS
   {
-    .reset : { *(.reset) } > reset
-    .undef : { *(.undef) } > undef
-    .sofwi : { *(.sofwi) } > sofwi
-    .prefe : { *(.prefe) } > prefe
-    .dataa : { *(.dataa) } > dataa
-    .inter : { *(.inter) } > inter
-    .finte : { *(.finte) } > finte
+    .vector : { *(.vector) } > vector
     .text  : { *(.text) } > rom
     .data  : { *(.data) } > ram
   }

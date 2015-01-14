@@ -67,9 +67,8 @@ static int arm_execute_instruction(arm_core p) {
 	}
   	// Execution (ou pas) de l'instruction
 	int deroul = 0;
-	int type_instr;
+	int8_t type_instr = get_bits(instr,27,25);
 	if (res) {
-		type_instr = get_bits(instr,27,25);
 		switch (type_instr) {
 			case 0 :
 				if(get_bits(instr, 25, 24) == 2 || (get_bit(instr, 7) == 1 && get_bit(instr, 4) == 1)) {
@@ -96,9 +95,11 @@ static int arm_execute_instruction(arm_core p) {
 			default : return -1; //Cas normalement impossible à atteindre
 		}
 	}
+
+	uint32_t PC = arm_read_register(p,15);
 	
 	printf("-- -- -- -- -- -- -- -- --\n");
-	printf("-- Instruction : %x --\n",instr);
+	printf("-- Instruction : %x -- PC : %x --\n",instr,PC-8);
 	printf("-- N : %d -- Z : %d -- C : %d -- V : %d --\n",n,z,c,v); 
 	printf("-- Mode d'utilisation : %s --\n",arm_get_mode_name(cpsr & 0x1F));
 	printf("-- Condition : %d - Type Instruction : %d --\n",cond,type_instr);

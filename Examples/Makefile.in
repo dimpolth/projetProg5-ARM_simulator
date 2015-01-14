@@ -78,7 +78,7 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 @HAVE_ARM_COMPILER_TRUE@noinst_PROGRAMS = example1$(EXEEXT) \
 @HAVE_ARM_COMPILER_TRUE@	example2$(EXEEXT) example3$(EXEEXT) \
-@HAVE_ARM_COMPILER_TRUE@	example4$(EXEEXT) \
+@HAVE_ARM_COMPILER_TRUE@	example4$(EXEEXT) test_tri$(EXEEXT) \
 @HAVE_ARM_COMPILER_TRUE@	insertion_sort$(EXEEXT)
 subdir = .
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
@@ -86,7 +86,7 @@ DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(srcdir)/config.h.in $(top_srcdir)/../build-aux/depcomp \
 	../build-aux/compile ../build-aux/depcomp \
 	../build-aux/install-sh ../build-aux/missing \
-	$(top_srcdir)/../build-aux/compile \
+	../build-aux/ylwrap $(top_srcdir)/../build-aux/compile \
 	$(top_srcdir)/../build-aux/install-sh \
 	$(top_srcdir)/../build-aux/missing
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -115,6 +115,9 @@ example4_LDADD = $(LDADD)
 am_insertion_sort_OBJECTS = insertion_sort.$(OBJEXT)
 insertion_sort_OBJECTS = $(am_insertion_sort_OBJECTS)
 insertion_sort_LDADD = $(LDADD)
+am_test_tri_OBJECTS = test_tri.$(OBJEXT)
+test_tri_OBJECTS = $(am_test_tri_OBJECTS)
+test_tri_LDADD = $(LDADD)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -149,10 +152,11 @@ am__v_CCAS_ = $(am__v_CCAS_@AM_DEFAULT_V@)
 am__v_CCAS_0 = @echo "  CCAS    " $@;
 am__v_CCAS_1 = 
 SOURCES = $(example1_SOURCES) $(example2_SOURCES) $(example3_SOURCES) \
-	$(example4_SOURCES) $(insertion_sort_SOURCES)
+	$(example4_SOURCES) $(insertion_sort_SOURCES) \
+	$(test_tri_SOURCES)
 DIST_SOURCES = $(example1_SOURCES) $(example2_SOURCES) \
 	$(example3_SOURCES) $(example4_SOURCES) \
-	$(insertion_sort_SOURCES)
+	$(insertion_sort_SOURCES) $(test_tri_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -292,6 +296,7 @@ example1_SOURCES = example1.s
 example2_SOURCES = example2.s
 example3_SOURCES = example3.s
 example4_SOURCES = example4.s
+test_tri_SOURCES = test_tri.s
 insertion_sort_SOURCES = insertion_sort.c
 EXTRA_DIST = linker_script
 all: config.h
@@ -371,6 +376,10 @@ example4$(EXEEXT): $(example4_OBJECTS) $(example4_DEPENDENCIES) $(EXTRA_example4
 insertion_sort$(EXEEXT): $(insertion_sort_OBJECTS) $(insertion_sort_DEPENDENCIES) $(EXTRA_insertion_sort_DEPENDENCIES) 
 	@rm -f insertion_sort$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(insertion_sort_OBJECTS) $(insertion_sort_LDADD) $(LIBS)
+
+test_tri$(EXEEXT): $(test_tri_OBJECTS) $(test_tri_DEPENDENCIES) $(EXTRA_test_tri_DEPENDENCIES) 
+	@rm -f test_tri$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(test_tri_OBJECTS) $(test_tri_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
