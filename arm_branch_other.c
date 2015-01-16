@@ -1,19 +1,19 @@
 /*
-Armator - simulateur de jeu d'instruction ARMv5T à but pédagogique
+Armator - simulateur de jeu d'instruction ARMv5T ï¿½ but pï¿½dagogique
 Copyright (C) 2011 Guillaume Huard
 Ce programme est libre, vous pouvez le redistribuer et/ou le modifier selon les
-termes de la Licence Publique Générale GNU publiée par la Free Software
-Foundation (version 2 ou bien toute autre version ultérieure choisie par vous).
+termes de la Licence Publique Gï¿½nï¿½rale GNU publiï¿½e par la Free Software
+Foundation (version 2 ou bien toute autre version ultï¿½rieure choisie par vous).
 
-Ce programme est distribué car potentiellement utile, mais SANS AUCUNE
+Ce programme est distribuï¿½ car potentiellement utile, mais SANS AUCUNE
 GARANTIE, ni explicite ni implicite, y compris les garanties de
-commercialisation ou d'adaptation dans un but spécifique. Reportez-vous à la
-Licence Publique Générale GNU pour plus de détails.
+commercialisation ou d'adaptation dans un but spï¿½cifique. Reportez-vous ï¿½ la
+Licence Publique Gï¿½nï¿½rale GNU pour plus de dï¿½tails.
 
-Vous devez avoir reçu une copie de la Licence Publique Générale GNU en même
-temps que ce programme ; si ce n'est pas le cas, écrivez à la Free Software
+Vous devez avoir reï¿½u une copie de la Licence Publique Gï¿½nï¿½rale GNU en mï¿½me
+temps que ce programme ; si ce n'est pas le cas, ï¿½crivez ï¿½ la Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307,
-États-Unis.
+ï¿½tats-Unis.
 
 Contact: Guillaume.Huard@imag.fr
          ENSIMAG - Laboratoire LIG
@@ -30,13 +30,13 @@ Contact: Guillaume.Huard@imag.fr
 int arm_branch(arm_core p, uint32_t ins) {
 	
 	// B / BL
-		// Récupération du PC actuel
+		// Rï¿½cupï¿½ration du PC actuel
 	int PC = arm_read_register(p, 15);
-		// Enregistrement du PC si le brachement est linké
+		// Enregistrement du PC si le brachement est linkï¿½
 	if (get_bit(ins, 24) == 1) {
 		arm_write_register(p, 14, PC-4);
 	}
-		// Traitement de l'offset (de 24 à 32 bit)
+		// Traitement de l'offset (de 24 ï¿½ 32 bit)
 	int offset = asr(ins << 8, 8) * 4;
 		// Modification du PC
 	int newPC = PC + offset;
@@ -60,7 +60,6 @@ int arm_coprocessor_others_swi(arm_core p, uint32_t ins) {
 int arm_miscellaneous(arm_core p, uint32_t ins) {
 
 	// MRS
-	printf("MANGER\n");
 	if (get_bits(ins,27,23) == 2 && get_bits(ins,21,20) == 0) { 
 		if (get_bit(ins,22) == 0) // CPSR -> Rd
 			arm_write_register(p,get_bits(ins,15,12),arm_read_cpsr(p));
@@ -69,7 +68,7 @@ int arm_miscellaneous(arm_core p, uint32_t ins) {
 		return 0;
 	}
 
-	// STRH, LDRH (+ éventuellement autres load/store spéciaux)
+	// STRH, LDRH (+ ï¿½ventuellement autres load/store spï¿½ciaux)
 	if(get_bit(ins, 7) && get_bit(ins, 4)){
 		uint32_t address = 0;
 		uint8_t P = get_bit(ins, 24);
